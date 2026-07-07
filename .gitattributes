@@ -1,0 +1,9 @@
+# Normalize line endings; treat these as text and store as UTF-8/LF in the repo.
+* text=auto eol=lf
+
+*.py    text
+*.md    text
+*.json  text
+*.toml  text
+*.cfg   text
+*.txt   text
