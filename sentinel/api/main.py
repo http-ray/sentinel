@@ -18,6 +18,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from sentinel.models import Alert, Incident
+from sentinel.pipeline.orchestrator import Orchestrator
 from sentinel.store import get_store
 
 app = FastAPI(
@@ -38,11 +39,8 @@ def healthz() -> dict[str, str]:
 
 @app.post("/webhook/alert", response_model=Incident, status_code=201)
 def ingest_alert(alert: Alert) -> Incident:
-    """Ingest an alert and return the resulting incident."""
-    store = get_store()
-    incident = store.create_from_alert(alert)
-    # Orchestrator enrichment is attached here once implemented.
-    return store.save(_maybe_enrich(incident))
+    """Ingest an alert, run the response pipeline, and return the incident."""
+    return Orchestrator().handle_alert(alert)
 
 
 @app.post("/webhook/resolve", response_model=Incident)
@@ -69,14 +67,9 @@ def get_incident(incident_id: str) -> Incident:
 
 
 # --------------------------------------------------------------------------- #
-# Enrichment hooks — replaced with real orchestrator/postmortem wiring later.
-# Kept as seams so ingestion is testable now and features slot in without
-# reshaping the API.
+# Postmortem hook — replaced with real generation wiring in the postmortem stage.
+# Kept as a seam so the resolve endpoint is stable while the feature lands.
 # --------------------------------------------------------------------------- #
-
-
-def _maybe_enrich(incident: Incident) -> Incident:
-    return incident
 
 
 def _maybe_generate_postmortem(incident: Incident) -> Incident:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import time
 from dataclasses import dataclass
 
@@ -24,5 +25,15 @@ class MockSlackAdapter:
         ts = f"{time.time():.6f}"
         self.messages.append(PostedMessage(channel=channel, text=text, ts=ts))
         if self.echo:
-            print(f"\n[slack:{channel}] posted message {ts}\n{text}\n")
+            _safe_print(f"\n[slack:{channel}] posted message {ts}\n{text}\n")
         return ts
+
+
+def _safe_print(text: str) -> None:
+    """Print without ever raising on consoles that can't encode a character.
+
+    A debug echo must never be able to break the incident pipeline, so we
+    down-convert to the console's encoding with replacement rather than crash.
+    """
+    enc = getattr(sys.stdout, "encoding", None) or "utf-8"
+    print(text.encode(enc, "replace").decode(enc, "replace"))
