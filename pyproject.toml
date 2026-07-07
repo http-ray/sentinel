@@ -1,0 +1,33 @@
+[project]
+name = "sentinel"
+version = "0.1.0"
+description = "Autonomous AI incident-response agent: correlates alerts to bad commits, finds runbooks, estimates impact, briefs Slack, and writes postmortems."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "anthropic>=0.40",
+    "httpx>=0.27",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+sentinel-simulate = "scripts.simulate:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["sentinel"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
