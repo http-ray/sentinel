@@ -1,0 +1,45 @@
+[
+  {
+    "sha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+    "message": "Refactor payment retry logic in checkout flow",
+    "author": "dana",
+    "timestamp": "2026-07-06T14:24:00Z",
+    "files_changed": [
+      "services/checkout/payment.py",
+      "services/checkout/retry.py"
+    ],
+    "services_touched": ["checkout-service"],
+    "additions": 142,
+    "deletions": 88
+  },
+  {
+    "sha": "b2c3d4e5f60718293a4b5c6d7e8f901234567890",
+    "message": "Bump image processing dependency to 3.2.0",
+    "author": "lee",
+    "timestamp": "2026-07-06T13:50:00Z",
+    "files_changed": ["services/media/requirements.txt"],
+    "services_touched": ["media-service"],
+    "additions": 1,
+    "deletions": 1
+  },
+  {
+    "sha": "c3d4e5f60718293a4b5c6d7e8f90123456789012",
+    "message": "Add unit tests for cart totals",
+    "author": "morgan",
+    "timestamp": "2026-07-06T11:15:00Z",
+    "files_changed": ["services/checkout/tests/test_cart.py"],
+    "services_touched": ["checkout-service"],
+    "additions": 96,
+    "deletions": 0
+  },
+  {
+    "sha": "d4e5f60718293a4b5c6d7e8f9012345678901234",
+    "message": "Update marketing copy on landing page",
+    "author": "sam",
+    "timestamp": "2026-07-06T09:40:00Z",
+    "files_changed": ["web/landing/index.html"],
+    "services_touched": ["web-frontend"],
+    "additions": 12,
+    "deletions": 10
+  }
+]

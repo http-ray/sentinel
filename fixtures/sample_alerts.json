@@ -1,0 +1,29 @@
+[
+  {
+    "id": "alert-checkout-5xx-0706",
+    "title": "Elevated 5xx on checkout-service",
+    "service": "checkout-service",
+    "severity_hint": "SEV2",
+    "summary": "HTTP 5xx error rate on checkout-service exceeded 5% for 3 consecutive minutes. Payment confirmation endpoint is the primary contributor.",
+    "labels": {
+      "monitor": "checkout-5xx",
+      "endpoint": "/api/checkout/confirm",
+      "region": "us-east-1"
+    },
+    "fired_at": "2026-07-06T14:32:00Z",
+    "source": "datadog"
+  },
+  {
+    "id": "alert-media-latency-0706",
+    "title": "p99 latency spike on media-service",
+    "service": "media-service",
+    "severity_hint": "SEV3",
+    "summary": "media-service image processing p99 latency rose above 2s.",
+    "labels": {
+      "monitor": "media-latency",
+      "region": "us-east-1"
+    },
+    "fired_at": "2026-07-06T14:05:00Z",
+    "source": "datadog"
+  }
+]

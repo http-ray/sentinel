@@ -1,0 +1,26 @@
+[
+  {
+    "id": "deploy-8814",
+    "commit_sha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+    "service": "checkout-service",
+    "environment": "production",
+    "deployed_at": "2026-07-06T14:28:00Z",
+    "deployed_by": "dana"
+  },
+  {
+    "id": "deploy-8809",
+    "commit_sha": "b2c3d4e5f60718293a4b5c6d7e8f901234567890",
+    "service": "media-service",
+    "environment": "production",
+    "deployed_at": "2026-07-06T13:55:00Z",
+    "deployed_by": "lee"
+  },
+  {
+    "id": "deploy-8801",
+    "commit_sha": "d4e5f60718293a4b5c6d7e8f9012345678901234",
+    "service": "web-frontend",
+    "environment": "production",
+    "deployed_at": "2026-07-06T09:45:00Z",
+    "deployed_by": "sam"
+  }
+]
