@@ -45,12 +45,10 @@ def ingest_alert(alert: Alert) -> Incident:
 
 @app.post("/webhook/resolve", response_model=Incident)
 def resolve_incident(req: ResolveRequest) -> Incident:
-    store = get_store()
-    incident = store.resolve(req.incident_id)
+    incident = Orchestrator().resolve_incident(req.incident_id)
     if incident is None:
         raise HTTPException(status_code=404, detail="Unknown incident")
-    # Postmortem generation is attached here once implemented.
-    return store.save(_maybe_generate_postmortem(incident))
+    return incident
 
 
 @app.get("/incidents", response_model=list[Incident])
@@ -63,14 +61,4 @@ def get_incident(incident_id: str) -> Incident:
     incident = get_store().get(incident_id)
     if incident is None:
         raise HTTPException(status_code=404, detail="Unknown incident")
-    return incident
-
-
-# --------------------------------------------------------------------------- #
-# Postmortem hook — replaced with real generation wiring in the postmortem stage.
-# Kept as a seam so the resolve endpoint is stable while the feature lands.
-# --------------------------------------------------------------------------- #
-
-
-def _maybe_generate_postmortem(incident: Incident) -> Incident:
     return incident

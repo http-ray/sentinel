@@ -14,6 +14,7 @@ from sentinel.models import Alert, Incident
 from sentinel.pipeline.brief import post_brief
 from sentinel.pipeline.correlate import correlate
 from sentinel.pipeline.impact import estimate_impact
+from sentinel.pipeline.postmortem import generate_postmortem
 from sentinel.pipeline.runbook import find_runbook
 from sentinel.store import IncidentStore, get_store
 
@@ -63,6 +64,24 @@ class Orchestrator:
         # Stage 4 — brief + Slack post (adds its own 'briefed' timeline event)
         with _stage(incident, "brief", "Generated incident brief"):
             post_brief(incident, self.adapters.slack, self.llm)
+
+        return self.store.save(incident)
+
+    def resolve_incident(self, incident_id: str) -> Incident | None:
+        """Mark an incident resolved and generate its postmortem (stage 5).
+
+        Returns None if the incident is unknown. The store's ``resolve`` records
+        the 'resolved' timeline event; ``generate_postmortem`` records its own.
+        """
+        incident = self.store.resolve(incident_id)
+        if incident is None:
+            return None
+
+        try:
+            generate_postmortem(incident, self.llm)
+        except Exception as exc:  # a failed postmortem must not undo resolution
+            incident.add_event("postmortem:error", f"{type(exc).__name__}: {exc}")
+            print(f"[orchestrator] postmortem generation failed: {exc}")
 
         return self.store.save(incident)
 
