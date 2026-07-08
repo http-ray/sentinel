@@ -35,6 +35,20 @@ produced.
 
 ## Quickstart
 
+**Easiest — use the launcher** (creates the venv and installs deps automatically on first run):
+
+```powershell
+.\run.ps1              # Windows: run the offline incident simulation
+.\run.ps1 test         # run the test suite
+.\run.ps1 server       # start the API server
+```
+
+```bash
+./run.sh               # macOS/Linux: same commands (sim | test | server | setup)
+```
+
+**Or set it up manually:**
+
 ```bash
 python -m venv .venv
 .venv/Scripts/activate            # Windows (macOS/Linux: source .venv/bin/activate)
