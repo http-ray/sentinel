@@ -46,6 +46,11 @@ class Settings(BaseSettings):
     slack_bot_token: str = Field(default="", alias="SLACK_BOT_TOKEN")
     slack_channel: str = Field(default="", alias="SLACK_CHANNEL")
 
+    # Webhook auth. Blank (the default) disables signature verification, so the
+    # API is easy to hit locally with no setup; set it to require a valid
+    # HMAC-SHA256 signature on inbound webhook requests.
+    webhook_secret: str = Field(default="", alias="SENTINEL_WEBHOOK_SECRET")
+
     # Paths (carried on the settings object for convenience)
     runbooks_dir: Path = RUNBOOKS_DIR
     fixtures_dir: Path = FIXTURES_DIR
@@ -54,6 +59,11 @@ class Settings(BaseSettings):
     def llm_enabled(self) -> bool:
         """True when a real Anthropic key is present; otherwise use the fallback."""
         return bool(self.anthropic_api_key.strip())
+
+    @property
+    def webhook_auth_enabled(self) -> bool:
+        """True when a webhook secret is configured; otherwise auth is skipped."""
+        return bool(self.webhook_secret.strip())
 
 
 @lru_cache
