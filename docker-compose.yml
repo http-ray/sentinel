@@ -1,0 +1,32 @@
+services:
+  sentinel:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Runs fully mocked/offline with zero setup, same as running locally.
+      # Compose auto-loads a .env file in this directory (if present) for
+      # these substitutions -- copy .env.example to .env to supply real
+      # credentials without editing this file.
+      - SENTINEL_USE_MOCKS=${SENTINEL_USE_MOCKS:-true}
+      - SENTINEL_MODEL=${SENTINEL_MODEL:-claude-sonnet-5}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GITHUB_REPO=${GITHUB_REPO:-}
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN:-}
+      - SLACK_CHANNEL=${SLACK_CHANNEL:-}
+      - SENTINEL_WEBHOOK_SECRET=${SENTINEL_WEBHOOK_SECRET:-}
+      - SENTINEL_USE_EMBEDDINGS=${SENTINEL_USE_EMBEDDINGS:-false}
+      - SENTINEL_DB_PATH=/app/data/sentinel.db
+    volumes:
+      # Named volume so incidents survive `docker compose down`/image rebuilds.
+      - sentinel-data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+
+volumes:
+  sentinel-data:
