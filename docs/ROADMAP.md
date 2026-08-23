@@ -26,9 +26,9 @@ This file is the working plan for Sentinel's next phase — turning it from a we
   unrelated to GitHub's webhook system; item 1 deliberately built PAT-polling,
   not a GitHub webhook receiver, and nothing on this roadmap calls for one.)
 
-### 4. ⬜ SQLite persistence
-- [ ] Replace in-memory store in `store/incidents.py`
-- [ ] Should be low-effort given it's already isolated behind its own module
+### 4. ✅ SQLite persistence
+- [x] Replace in-memory store in `store/incidents.py`
+- [x] Should be low-effort given it's already isolated behind its own module
 
 ### 5. ⬜ Async pipeline execution
 - [ ] ACK webhook immediately, process the 5-stage pipeline in the background (asyncio background tasks)
