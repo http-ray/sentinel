@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     slack_bot_token: str = Field(default="", alias="SLACK_BOT_TOKEN")
     slack_channel: str = Field(default="", alias="SLACK_CHANNEL")
 
+    # Slack Incoming Webhook URL. Independent of use_mocks/github_token -- set
+    # this alone to make Slack posts real, whether or not GitHub is real too.
+    slack_webhook_url: str = Field(default="", alias="SLACK_WEBHOOK_URL")
+
     # Webhook auth. Blank (the default) disables signature verification, so the
     # API is easy to hit locally with no setup; set it to require a valid
     # HMAC-SHA256 signature on inbound webhook requests.
@@ -77,6 +81,11 @@ class Settings(BaseSettings):
     def webhook_auth_enabled(self) -> bool:
         """True when a webhook secret is configured; otherwise auth is skipped."""
         return bool(self.webhook_secret.strip())
+
+    @property
+    def slack_enabled(self) -> bool:
+        """True when a real Slack webhook URL is configured."""
+        return bool(self.slack_webhook_url.strip())
 
 
 @lru_cache
