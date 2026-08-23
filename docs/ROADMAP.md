@@ -19,9 +19,12 @@ This file is the working plan for Sentinel's next phase — turning it from a we
 - [x] `.github/workflows/ci.yml` — lint + pytest on push/PR
 - [x] Confirm it actually runs green on the current test suite before considering this done
 
-### 3. ⬜ Webhook authentication
-- [ ] Shared-secret or HMAC signature verification on `/webhook/alert`
-- [ ] Natural follow-on once the GitHub adapter is real — do this alongside a real GitHub webhook, not the PAT-only version
+### 3. ✅ Webhook authentication
+- [x] Shared-secret/HMAC signature verification on `/webhook/alert` and `/webhook/resolve`
+  (Note: the old second bullet here referenced "a real GitHub webhook" — that's
+  not this. `/webhook/alert` is Sentinel's own inbound alert-ingestion endpoint,
+  unrelated to GitHub's webhook system; item 1 deliberately built PAT-polling,
+  not a GitHub webhook receiver, and nothing on this roadmap calls for one.)
 
 ### 4. ⬜ SQLite persistence
 - [ ] Replace in-memory store in `store/incidents.py`
