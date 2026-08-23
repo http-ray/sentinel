@@ -15,9 +15,9 @@ This file is the working plan for Sentinel's next phase — turning it from a we
 - [x] Tests added, consistent with existing suite style
 - [x] Log this in `docs/engineering-log.md` when done
 
-### 2. ⬜ GitHub Actions CI
-- [ ] `.github/workflows/ci.yml` — lint + pytest on push/PR
-- [ ] Confirm it actually runs green on the current test suite before considering this done
+### 2. ✅ GitHub Actions CI
+- [x] `.github/workflows/ci.yml` — lint + pytest on push/PR
+- [x] Confirm it actually runs green on the current test suite before considering this done
 
 ### 3. ⬜ Webhook authentication
 - [ ] Shared-secret or HMAC signature verification on `/webhook/alert`
