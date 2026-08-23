@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 
 from sentinel.adapters.base import RunbookStore
+from sentinel.config import get_settings
 from sentinel.models import Alert, Runbook, RunbookMatch
 
 # Scoring weights.
@@ -52,9 +53,21 @@ def score_runbook(alert: Alert, runbook: Runbook) -> float:
 
 
 def find_runbook(alert: Alert, store: RunbookStore) -> RunbookMatch | None:
-    """Return the best-matching runbook for ``alert``, or None if nothing scores."""
+    """Return the best-matching runbook for ``alert``, or None if nothing scores.
+
+    Uses heuristic keyword/tag/service scoring by default. Set
+    ``SENTINEL_USE_EMBEDDINGS=true`` to use local sentence-transformer
+    embeddings instead (see :mod:`sentinel.pipeline.embeddings`).
+    """
+    runbooks = store.all_runbooks()
+
+    if get_settings().use_embeddings:
+        from sentinel.pipeline.embeddings import find_runbook_by_embedding
+
+        return find_runbook_by_embedding(alert, runbooks)
+
     best: RunbookMatch | None = None
-    for runbook in store.all_runbooks():
+    for runbook in runbooks:
         s = score_runbook(alert, runbook)
         if s <= 0:
             continue

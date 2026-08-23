@@ -19,6 +19,9 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.16",
 ]
+embeddings = [
+    "sentence-transformers>=3.0",
+]
 
 [project.scripts]
 sentinel-simulate = "scripts.simulate:main"

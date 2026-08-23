@@ -60,6 +60,14 @@ class Settings(BaseSettings):
     # (e.g. a mounted volume path in Docker), so it's env-configurable.
     db_path: Path = Field(default=ROOT_DIR / "sentinel.db", alias="SENTINEL_DB_PATH")
 
+    # Runbook retrieval. Off by default: the heuristic keyword/tag/service
+    # scorer needs no extra dependencies. Set true for local sentence-transformer
+    # embedding-based retrieval instead -- requires `pip install -e ".[embeddings]"`.
+    use_embeddings: bool = Field(default=False, alias="SENTINEL_USE_EMBEDDINGS")
+    embedding_model: str = Field(
+        default="sentence-transformers/all-MiniLM-L6-v2", alias="SENTINEL_EMBEDDING_MODEL"
+    )
+
     @property
     def llm_enabled(self) -> bool:
         """True when a real Anthropic key is present; otherwise use the fallback."""
