@@ -31,3 +31,6 @@ htmlcov/
 Thumbs.db
 
 .claude/
+
+# Private planning doc, not meant for the public repo
+docs/ROADMAP.md
