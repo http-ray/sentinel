@@ -33,8 +33,22 @@ class Orchestrator:
         self.llm = llm or get_llm()
 
     def handle_alert(self, alert: Alert) -> Incident:
-        """Run the full response pipeline for an alert and persist the result."""
-        incident = self.store.create_from_alert(alert)
+        """Create an incident and run the full response pipeline, synchronously.
+
+        Callers that want to ACK immediately and run the pipeline in the
+        background (the API layer does) should call :meth:`create_incident` and
+        :meth:`enrich_incident` separately instead.
+        """
+        incident = self.create_incident(alert)
+        return self.enrich_incident(incident)
+
+    def create_incident(self, alert: Alert) -> Incident:
+        """Record a new (or existing) incident for an alert. No pipeline stages run yet."""
+        return self.store.create_from_alert(alert)
+
+    def enrich_incident(self, incident: Incident) -> Incident:
+        """Run stages 1–4 (correlate -> runbook -> impact -> brief) and persist the result."""
+        alert = incident.alert
 
         # Stage 1 — commit correlation
         with _stage(incident, "correlate", "Correlated recent commits/deploys"):
@@ -68,15 +82,27 @@ class Orchestrator:
         return self.store.save(incident)
 
     def resolve_incident(self, incident_id: str) -> Incident | None:
-        """Mark an incident resolved and generate its postmortem (stage 5).
+        """Mark an incident resolved and generate its postmortem, synchronously.
 
-        Returns None if the incident is unknown. The store's ``resolve`` records
-        the 'resolved' timeline event; ``generate_postmortem`` records its own.
+        Callers that want to ACK immediately and generate the postmortem (stage
+        5) in the background should call :meth:`mark_resolved` and
+        :meth:`generate_and_save_postmortem` separately instead.
         """
-        incident = self.store.resolve(incident_id)
+        incident = self.mark_resolved(incident_id)
         if incident is None:
             return None
+        return self.generate_and_save_postmortem(incident)
 
+    def mark_resolved(self, incident_id: str) -> Incident | None:
+        """Flip an incident to resolved and persist it. Returns None if unknown.
+
+        Records the 'resolved' timeline event; postmortem generation (stage 5)
+        happens separately in :meth:`generate_and_save_postmortem`.
+        """
+        return self.store.resolve(incident_id)
+
+    def generate_and_save_postmortem(self, incident: Incident) -> Incident:
+        """Run stage 5 (postmortem) on an already-resolved incident and persist it."""
         try:
             generate_postmortem(incident, self.llm)
         except Exception as exc:  # a failed postmortem must not undo resolution
