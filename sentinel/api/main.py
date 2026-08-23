@@ -10,13 +10,18 @@ Endpoints:
 Any monitoring source maps its payload onto the normalized :class:`Alert` schema
 before POSTing. Pipeline enrichment (commit correlation, runbook, impact, brief)
 is wired in via the orchestrator; until then ingestion simply records incidents.
+
+Both POST endpoints require a valid HMAC-SHA256 signature once
+``SENTINEL_WEBHOOK_SECRET`` is set (see ``sentinel.api.auth``); unset, they're
+open, matching every other real-integration credential's offline-friendly default.
 """
 
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
+from sentinel.api.auth import verify_webhook_signature
 from sentinel.models import Alert, Incident
 from sentinel.pipeline.orchestrator import Orchestrator
 from sentinel.store import get_store
@@ -37,13 +42,22 @@ def healthz() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.post("/webhook/alert", response_model=Incident, status_code=201)
+@app.post(
+    "/webhook/alert",
+    response_model=Incident,
+    status_code=201,
+    dependencies=[Depends(verify_webhook_signature)],
+)
 def ingest_alert(alert: Alert) -> Incident:
     """Ingest an alert, run the response pipeline, and return the incident."""
     return Orchestrator().handle_alert(alert)
 
 
-@app.post("/webhook/resolve", response_model=Incident)
+@app.post(
+    "/webhook/resolve",
+    response_model=Incident,
+    dependencies=[Depends(verify_webhook_signature)],
+)
 def resolve_incident(req: ResolveRequest) -> Incident:
     incident = Orchestrator().resolve_incident(req.incident_id)
     if incident is None:

@@ -13,8 +13,9 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+from typing import Annotated
 
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 
 from sentinel.config import Settings, get_settings
 
@@ -27,10 +28,16 @@ def _expected_signature(secret: str, body: bytes) -> str:
 
 
 async def verify_webhook_signature(
-    request: Request, settings: Settings | None = None
+    request: Request,
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> None:
-    """FastAPI dependency: 401s unsigned/mis-signed requests when auth is enabled."""
-    settings = settings or get_settings()
+    """FastAPI dependency: 401s unsigned/mis-signed requests when auth is enabled.
+
+    ``settings`` comes from :func:`get_settings` as a sub-dependency (not a plain
+    default) so FastAPI resolves it via DI instead of mistaking it for a second
+    request-body field, and so tests can override it with
+    ``app.dependency_overrides[get_settings]``.
+    """
     if not settings.webhook_auth_enabled:
         return
 
