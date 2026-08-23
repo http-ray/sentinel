@@ -65,3 +65,58 @@ def test_pipeline_is_idempotent_on_repeated_alert(checkout_alert):
     again = orch.handle_alert(checkout_alert)
     assert first.id == again.id
     assert len(orch.store.list()) == 1
+
+
+def test_create_incident_runs_no_pipeline_stages(checkout_alert):
+    # This is the split handle_alert() is built from, and what the API layer
+    # calls before handing enrichment off to a background task.
+    incident = _orch().create_incident(checkout_alert)
+    assert incident.suspects == []
+    assert incident.runbook_match is None
+    assert incident.impact is None
+    assert incident.brief is None
+    assert [e.label for e in incident.timeline] == ["detected"]
+
+
+def test_enrich_incident_completes_and_persists_stages(checkout_alert):
+    orch = _orch()
+    incident = orch.create_incident(checkout_alert)
+    enriched = orch.enrich_incident(incident)
+
+    assert enriched.suspects, "correlation produced no suspects"
+    assert enriched.brief is not None
+    assert orch.store.get(incident.id).brief is not None
+
+
+def test_handle_alert_equals_create_then_enrich(checkout_alert):
+    # handle_alert() is documented as a thin composition of the two -- prove it.
+    composed = _orch()
+    composed_result = composed.enrich_incident(composed.create_incident(checkout_alert))
+
+    direct = _orch()
+    direct_result = direct.handle_alert(checkout_alert)
+
+    assert composed_result.suspects == direct_result.suspects
+    assert composed_result.brief == direct_result.brief
+
+
+def test_mark_resolved_does_not_generate_postmortem(checkout_alert):
+    orch = _orch()
+    incident = orch.handle_alert(checkout_alert)
+    resolved = orch.mark_resolved(incident.id)
+
+    assert resolved is not None
+    assert resolved.status is IncidentStatus.RESOLVED
+    assert resolved.postmortem is None
+    assert any(e.label == "resolved" for e in resolved.timeline)
+    assert "postmortem" not in [e.label for e in resolved.timeline]
+
+
+def test_generate_and_save_postmortem_completes_and_persists(checkout_alert):
+    orch = _orch()
+    incident = orch.handle_alert(checkout_alert)
+    resolved = orch.mark_resolved(incident.id)
+    finished = orch.generate_and_save_postmortem(resolved)
+
+    assert finished.postmortem is not None
+    assert orch.store.get(incident.id).postmortem is not None
