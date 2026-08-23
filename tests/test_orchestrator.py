@@ -52,7 +52,10 @@ def test_timeline_records_each_stage(checkout_alert):
 def test_incident_is_persisted_and_listable(checkout_alert):
     orch = _orch()
     incident = orch.handle_alert(checkout_alert)
-    assert orch.store.get(incident.id) is incident
+    # The store round-trips through SQLite/JSON, so a fetched incident is an
+    # equal-but-distinct object, not the same instance -- that's the correct
+    # invariant for a persisted store, not object identity.
+    assert orch.store.get(incident.id) == incident
     assert incident in orch.store.list()
 
 

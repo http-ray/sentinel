@@ -55,6 +55,11 @@ class Settings(BaseSettings):
     runbooks_dir: Path = RUNBOOKS_DIR
     fixtures_dir: Path = FIXTURES_DIR
 
+    # Where the incident store persists its SQLite database. Unlike
+    # runbooks_dir/fixtures_dir (fixed repo content), this is deployment-specific
+    # (e.g. a mounted volume path in Docker), so it's env-configurable.
+    db_path: Path = Field(default=ROOT_DIR / "sentinel.db", alias="SENTINEL_DB_PATH")
+
     @property
     def llm_enabled(self) -> bool:
         """True when a real Anthropic key is present; otherwise use the fallback."""
