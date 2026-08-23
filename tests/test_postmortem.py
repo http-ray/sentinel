@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from sentinel.adapters import get_adapters
+from sentinel.config import Settings
 from sentinel.llm import LLMClient
 from sentinel.models import IncidentStatus
 from sentinel.pipeline.orchestrator import Orchestrator
@@ -16,7 +17,10 @@ class _DisabledLLM(LLMClient):
 
 
 def _orch() -> Orchestrator:
-    return Orchestrator(adapters=get_adapters(), store=IncidentStore(), llm=_DisabledLLM())
+    # Ignore the developer's local .env (e.g. SENTINEL_USE_MOCKS=false) — always offline.
+    return Orchestrator(
+        adapters=get_adapters(Settings(_env_file=None)), store=IncidentStore(), llm=_DisabledLLM()
+    )
 
 
 def test_resolve_generates_postmortem(checkout_alert):

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from sentinel.adapters.base import MetricsAdapter, ServiceMetrics
+from sentinel.adapters.base import ServiceMetrics
 from sentinel.models import Alert, Severity
 from sentinel.pipeline.impact import estimate_impact
 

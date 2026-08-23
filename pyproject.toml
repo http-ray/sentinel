@@ -17,6 +17,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
+    "ruff>=0.16",
 ]
 
 [project.scripts]
@@ -31,3 +32,9 @@ packages = ["sentinel"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff.lint]
+# Pyflakes + the pycodestyle subsets that flag real bugs (bad imports, dead
+# statements, syntax-adjacent errors) — not style/line-length opinions. CI
+# is meant to catch mistakes, not enforce a formatter we haven't adopted.
+select = ["F", "E4", "E7", "E9"]

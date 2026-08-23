@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from sentinel.adapters import get_adapters
+from sentinel.config import Settings
 from sentinel.llm import LLMClient
 from sentinel.models import IncidentStatus
 from sentinel.pipeline.orchestrator import Orchestrator
@@ -16,8 +17,11 @@ class _DisabledLLM(LLMClient):
 
 
 def _orch() -> Orchestrator:
-    # Fresh adapters + store per test so state doesn't leak between tests.
-    return Orchestrator(adapters=get_adapters(), store=IncidentStore(), llm=_DisabledLLM())
+    # Fresh adapters + store per test so state doesn't leak between tests. Ignore
+    # the developer's local .env (e.g. SENTINEL_USE_MOCKS=false) — always offline.
+    return Orchestrator(
+        adapters=get_adapters(Settings(_env_file=None)), store=IncidentStore(), llm=_DisabledLLM()
+    )
 
 
 def test_alert_produces_fully_populated_incident(checkout_alert):

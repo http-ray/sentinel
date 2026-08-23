@@ -42,13 +42,10 @@ class MockMetricsAdapter:
         self, service: str, window_start: datetime, window_end: datetime
     ) -> ServiceMetrics:
         m = _SEEDED.get(service, _DEFAULT)
-        # affected_users ~= active users * excess error rate over baseline.
-        excess = max(0.0, m["error_rate"] - m["baseline_error_rate"])
-        active = int(m["active_users"])
         return ServiceMetrics(
             service=service,
             error_rate=float(m["error_rate"]),
             baseline_error_rate=float(m["baseline_error_rate"]),
             requests_per_min=float(m["requests_per_min"]),
-            active_users=active,
+            active_users=int(m["active_users"]),
         )
